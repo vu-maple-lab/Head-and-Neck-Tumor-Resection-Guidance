@@ -1,0 +1,14 @@
+# THIS FILE IS AUTOMATICALLY COPIED FROM LIBR SOURCE DIRECTORY. IF MODIFICATIONS
+# ARE MADE TO THIS FILE IN THIS BUILD DIRECTORY, THEY WILL BE REVERTED ON THE
+# NEXT BUILD STEP. FOR THIS REASON, MAKE CHANGES TO THE PIPE_DIRECTORIES.TXT
+# FILE IN THE SOURCE DIRECTORY AND NOT THE BUILD DIRECTORY.
+
+BASEDIR="/home/fj/TumorResectionGuidance"
+PROP_FILE="/home/fj/TumorResectionGuidance/tissue.prop"
+NONRIGID_APPS_DIR="/home/ringelmj/BMLToolkitRelease-build/bin/"
+SPMESH_LIB_DIR="/home/ringelmj/BMLToolkitRelease-build/bin/"
+SPMESH_INCLUDE_DIR="/home/ringelmj/BMLToolkitRelease-build/bin/"
+
+PYTHON_EXECUTABLE="/home/ringelmj/Python-3.8.5-build/bin/python3.8"
+
+
