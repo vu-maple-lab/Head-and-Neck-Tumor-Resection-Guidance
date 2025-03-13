@@ -4,48 +4,40 @@ import sys
 import importlib
 import numpy as np
 import mathutils
-
 # sys.path.append(str(Path(__file__).parent))
+#### Set Path to repo/blender_integration here ####
 sys.path.append(r"D:\Projects\Head_Neck_Marker_Alignment\code_base\visual_guidance\blender_integration")
-
 import texture_transfer_op as tto
 import ModelAlignerV5 as ma
-
 importlib.reload(tto)
 importlib.reload(ma)
 
-def transform_obj(obj, euler_rot, translation):
-    translation = np.array(translation)
-    euler_rot = np.array(euler_rot)
+##### OPERATION MODE #####
+RUN_MODE = "SURFACE_ONLY"
 
-    # Flatten arrays to get a 1D vector
-    translation = translation.flatten() 
-    euler_deg = euler_rot.flatten()
-
-    # Convert Euler angles from degrees to radians
-    euler_rad = np.deg2rad(euler_deg)
-
-    # Create a mathutils.Euler object (use 'XYZ' rotation order or as needed)
-    euler = mathutils.Euler(euler_rad.tolist(), 'XYZ')
-
-    # obj = bpy.context.object
-
-    # Update the object's pose
-    obj.location = mathutils.Vector(translation.tolist())
-    obj.rotation_euler = euler
-
-# Variables and CONFIGS
+##### Variables and CONFIGS ####
+# Surface Related
 surf_name = "PC"
+bedFidsPath = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\0024_cav\frame0010_fids.vtk")
+
+# Specimen Mesh/Deformed Model Related
 scan_name = "scan_model"
 bel_name = "bel"
 deformed_bel_name = "bel_deformed"
-targ_obj_name = "target"
-
-bedFidsPath = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\0024_cav\frame0010_fids.vtk")
 deformedFidsPath = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\Deformed\0024_fids_mm_Deformed.vtk")
 undeformedFidsPath = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\Deformed\0024_fids.vtk")
+
+# Target Related
+targ_obj_name = "target"
 targPath = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\Deformed\0024_tgt_mm_Deformed.vtk") # None
 
+
+
+
+
+
+
+##### Create Target Marker Object #####
 if targ_obj_name not in bpy.data.objects:
     # Create Target
     bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0015, location=(0, 0, 0))
@@ -70,17 +62,19 @@ if targ_obj_name not in bpy.data.objects:
     else:
         sphere.data.materials.append(green_metal)
 
+# Registration and Texture Transfer
 model_names = [scan_name, bel_name, deformed_bel_name]
 assert(surf_name in bpy.data.objects)
-if False in [cur_name in bpy.data.objects for cur_name in model_names]:
+#if False in [cur_name in bpy.data.objects for cur_name in model_names]:
+if RUN_MODE == "SURFACE_ONLY": # Surface Registration
     # Models not loaded yet, just register the surface
     print("WARNING: specimen files not found, skipping their registration and texture transfer")
     surf_pc = bpy.data.objects[surf_name]
 
     print("Performing Surface PC Registration")
     outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=None,undeformedFidsPath=None,targPath=None)
-    transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) # target_in_aruco
-else:
+    ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) # target_in_aruco
+else: # Deformed Model Regstration and Texture Transfer
     print("All specimen files specified, performing specimen to Aruco Registration and texture transfer")
     surf_pc = bpy.data.objects[surf_name]
     obj_scan = bpy.data.objects[scan_name]
@@ -93,11 +87,11 @@ else:
     print("Performing Specimen Model Registrations")
     outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=deformedFidsPath,undeformedFidsPath=undeformedFidsPath,targPath=targPath)
     # transform_obj(obj_bel, *(outputTs["aruco_T_undeformed"])) 
-    transform_obj(obj_bel_deformed, *(outputTs["aruco_T_deformed"])) 
-    transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) 
+    ma.transform_obj(obj_bel_deformed, *(outputTs["aruco_T_deformed"])) 
+    ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) 
     if not targPath is None:
         assert(targ_obj_name in bpy.data.objects)
         print("Positioning targetPath")
         targ_obj = bpy.data.objects[targ_obj_name]
-        transform_obj(targ_obj, [0, 0, 0], outputTs["target_in_aruco"])
+        ma.transform_obj(targ_obj, [0, 0, 0], outputTs["target_in_aruco"])
         

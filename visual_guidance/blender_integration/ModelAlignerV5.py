@@ -4,6 +4,21 @@ import argparse
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import vtk
+import mathutils
+
+def transform_obj(obj, euler_rot, translation):
+    translation = np.array(translation)
+    euler_rot = np.array(euler_rot)
+
+    translation = translation.flatten() 
+    euler_deg = euler_rot.flatten()
+
+    euler_rad = np.deg2rad(euler_deg)
+    euler = mathutils.Euler(euler_rad.tolist(), 'XYZ')
+    # Update the object's pose
+    obj.location = mathutils.Vector(translation.tolist())
+    obj.rotation_euler = euler
+
 
 # Arun's method
 def ptSetRegATB(a, b):

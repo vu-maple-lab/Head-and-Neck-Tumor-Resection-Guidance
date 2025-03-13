@@ -76,7 +76,7 @@ def main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers, obj_d
 if __name__ == "__main__":
     # Get your objects by name
     obj_scan = bpy.data.objects["scan_model"]
-    obj_bel = bpy.data.objects["0024_bel"]
-    obj_bel_deformed = bpy.data.objects["0024_bel_deformed_initial"]
+    obj_bel = bpy.data.objects["bel"]
+    obj_bel_deformed = bpy.data.objects["bel_deformed"]
     main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers=['NEAREST_POLYNOR', 'NEAREST'], obj_deformed_transfer_modifiers=["TOPOLOGY", "TOPOLOGY"])
     
