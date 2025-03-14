@@ -13,7 +13,7 @@ importlib.reload(tto)
 importlib.reload(ma)
 
 ##### OPERATION MODE #####
-RUN_MODE = "SURFACE_ONLY"
+RUN_MODE = "SURFACE_ONLY" # FULL
 
 ##### Variables and CONFIGS ####
 # Surface Related
@@ -64,34 +64,36 @@ if targ_obj_name not in bpy.data.objects:
 
 # Registration and Texture Transfer
 model_names = [scan_name, bel_name, deformed_bel_name]
-assert(surf_name in bpy.data.objects)
-#if False in [cur_name in bpy.data.objects for cur_name in model_names]:
-if RUN_MODE == "SURFACE_ONLY": # Surface Registration
-    # Models not loaded yet, just register the surface
-    print("WARNING: specimen files not found, skipping their registration and texture transfer")
-    surf_pc = bpy.data.objects[surf_name]
+if not (surf_name in bpy.data.objects):
+    print("ERROR! surface name provided not found in scene object list! Surface Registration Not Performed! Did you forget to rename the point cloud?")
+else: 
+    #if False in [cur_name in bpy.data.objects for cur_name in model_names]:
+    if RUN_MODE.upper() == "SURFACE_ONLY": # Surface Registration
+        # Models not loaded yet, just register the surface
+        print("WARNING: specimen files not found, skipping their registration and texture transfer")
+        surf_pc = bpy.data.objects[surf_name]
 
-    print("Performing Surface PC Registration")
-    outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=None,undeformedFidsPath=None,targPath=None)
-    ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) # target_in_aruco
-else: # Deformed Model Regstration and Texture Transfer
-    print("All specimen files specified, performing specimen to Aruco Registration and texture transfer")
-    surf_pc = bpy.data.objects[surf_name]
-    obj_scan = bpy.data.objects[scan_name]
-    obj_bel = bpy.data.objects[bel_name]
-    obj_bel_deformed = bpy.data.objects[deformed_bel_name]
-    
-    print("Performing Texture Transfer First")
-    tto.main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers=['NEAREST_POLYNOR', 'NEAREST'], obj_deformed_transfer_modifiers=["TOPOLOGY", "TOPOLOGY"])
-
-    print("Performing Specimen Model Registrations")
-    outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=deformedFidsPath,undeformedFidsPath=undeformedFidsPath,targPath=targPath)
-    # transform_obj(obj_bel, *(outputTs["aruco_T_undeformed"])) 
-    ma.transform_obj(obj_bel_deformed, *(outputTs["aruco_T_deformed"])) 
-    ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) 
-    if not targPath is None:
-        assert(targ_obj_name in bpy.data.objects)
-        print("Positioning targetPath")
-        targ_obj = bpy.data.objects[targ_obj_name]
-        ma.transform_obj(targ_obj, [0, 0, 0], outputTs["target_in_aruco"])
+        print("Performing Surface PC Registration")
+        outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=None,undeformedFidsPath=None,targPath=None)
+        ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) # target_in_aruco
+    elif RUN_MODE.upper() == "FULL": # Deformed Model Regstration and Texture Transfer
+        print("All specimen files specified, performing specimen to Aruco Registration and texture transfer")
+        surf_pc = bpy.data.objects[surf_name]
+        obj_scan = bpy.data.objects[scan_name]
+        obj_bel = bpy.data.objects[bel_name]
+        obj_bel_deformed = bpy.data.objects[deformed_bel_name]
         
+        print("Performing Texture Transfer First")
+        tto.main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers=['NEAREST_POLYNOR', 'NEAREST'], obj_deformed_transfer_modifiers=["TOPOLOGY", "TOPOLOGY"])
+
+        print("Performing Specimen Model Registrations")
+        outputTs = ma.main(bedFidsPath=bedFidsPath,specimenFidsPath=deformedFidsPath,undeformedFidsPath=undeformedFidsPath,targPath=targPath)
+        # transform_obj(obj_bel, *(outputTs["aruco_T_undeformed"])) 
+        ma.transform_obj(obj_bel_deformed, *(outputTs["aruco_T_deformed"])) 
+        ma.transform_obj(surf_pc, *(outputTs["aruco_T_bed"])) 
+        if not targPath is None:
+            assert(targ_obj_name in bpy.data.objects)
+            print("Positioning targetPath")
+            targ_obj = bpy.data.objects[targ_obj_name]
+            ma.transform_obj(targ_obj, [0, 0, 0], outputTs["target_in_aruco"])
+            

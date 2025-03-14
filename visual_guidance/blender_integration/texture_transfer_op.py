@@ -3,10 +3,12 @@ import bpy
 # Do pip install [MODULE_NAME] --target [PATH/TO/BLENDER/SITE_PACKAGES]
 
 # Function to assign materials to a target object
-def assign_materials(target_obj, materials):
+def assign_materials(target_obj, materials, copy_materials=True):
     # Clear any existing material slots if needed
     target_obj.data.materials.clear()
     for mat in materials:
+        if copy_materials:
+            mat = mat.copy()
         target_obj.data.materials.append(mat)
 
 # Function to create a default UV map using Smart UV Project
@@ -55,7 +57,7 @@ def add_data_transfer_modifier(target_obj, source_obj, face_corner_mapping_opt, 
 def main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers, obj_deformed_transfer_modifiers):
     # Retrieve materials from "scan_model"
     materials = obj_scan.data.materials
-    print("its transfer ing now")
+    print("transfering materials now")
     # Assign the scan_model's materials to the other objects
     for obj in (obj_bel, obj_bel_deformed):
         assign_materials(obj, materials)
@@ -73,10 +75,10 @@ def main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers, obj_d
 
 
 
-if __name__ == "__main__":
-    # Get your objects by name
-    obj_scan = bpy.data.objects["scan_model"]
-    obj_bel = bpy.data.objects["bel"]
-    obj_bel_deformed = bpy.data.objects["bel_deformed"]
-    main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers=['NEAREST_POLYNOR', 'NEAREST'], obj_deformed_transfer_modifiers=["TOPOLOGY", "TOPOLOGY"])
+# if __name__ == "__main__":
+#     # Get your objects by name
+#     obj_scan = bpy.data.objects["scan_model"]
+#     obj_bel = bpy.data.objects["bel"]
+#     obj_bel_deformed = bpy.data.objects["bel_deformed"]
+#     main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers=['NEAREST_POLYNOR', 'NEAREST'], obj_deformed_transfer_modifiers=["TOPOLOGY", "TOPOLOGY"])
     
