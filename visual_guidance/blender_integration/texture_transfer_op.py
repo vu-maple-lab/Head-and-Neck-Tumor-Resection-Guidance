@@ -14,6 +14,7 @@ def assign_materials(target_obj, materials, copy_materials=True):
 # Function to create a default UV map using Smart UV Project
 def create_uv_map(obj):
     # Make sure the object is active and in object mode
+    bpy.ops.object.select_all(action='DESELECT')
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='OBJECT')
     
@@ -24,6 +25,7 @@ def create_uv_map(obj):
     # Using Smart UV Project; adjust parameters as needed
     bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
     bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.select_all(action='DESELECT')
 
 def add_data_transfer_modifier(target_obj, source_obj, face_corner_mapping_opt, face_data_mapping_opt, modifier_name="DataTransfer"):
     """
@@ -53,6 +55,12 @@ def add_data_transfer_modifier(target_obj, source_obj, face_corner_mapping_opt, 
     dt_mod.use_poly_data = True
     # dt_mod.data_types_polys = {'SMOOTH'}
     dt_mod.poly_mapping = face_data_mapping_opt
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.view_layer.objects.active = target_obj           # <<<< add this
+    with bpy.context.temp_override(object=target_obj):
+        bpy.ops.object.modifier_apply(modifier=dt_mod.name)
+    bpy.ops.object.select_all(action='DESELECT')
+
     
 def main(obj_scan, obj_bel, obj_bel_deformed, obj_bel_transfer_modeifiers, obj_deformed_transfer_modifiers):
     # Retrieve materials from "scan_model"
