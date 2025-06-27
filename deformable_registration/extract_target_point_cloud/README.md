@@ -47,3 +47,13 @@ A tool for extracting and processing frames from `.svo` files with Segment Anyth
 - NumPy
 - Segment Anything Model (SAM)
 - SVO file support
+
+## SAM Model Checkpoint
+
+The SAM model checkpoint file (`sam_vit_h_4b8939.pth`) is **not included** in this repository due to its large size.
+
+You can download the checkpoint from:
+
+- Official SAM release page: [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)  
+
+After downloading, place the file in the extract_target_point_cloud directory of this repo before running the code.
