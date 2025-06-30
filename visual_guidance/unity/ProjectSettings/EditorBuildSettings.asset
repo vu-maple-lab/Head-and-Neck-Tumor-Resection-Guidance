@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/ArUcoDetection.unity
+    guid: 6e511bc868e671f4391dbe6b9adeed25
+  m_configObjects:
+    Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: 5008d9e6701f9814a914b577aabe947a,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b0a1033b8e64705419c47bf3d0fcbf99,
+      type: 2}
+    xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: 7c6d33393470b5146a736fc38a01d19c,
+      type: 2}
