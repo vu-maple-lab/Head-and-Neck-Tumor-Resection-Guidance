@@ -1,6 +1,47 @@
 import bpy
+from mathutils import Euler, Quaternion, Vector
+from pathlib import Path
 # import sys, subprocess; subprocess.run([sys.executable, '-m', 'pip', 'install', '--user', 'MODULE_NAME'])
 # Do pip install [MODULE_NAME] --target [PATH/TO/BLENDER/SITE_PACKAGES]
+
+def import_model(filepath: str | Path, object_name: str | None = None, global_scale: float=1.0):
+    """
+    Import a PLY mesh file into Blender, optionally renaming the object.
+    """
+    from pathlib import Path
+    import bpy
+
+    filepath = Path(filepath)
+    if not filepath.exists():
+        raise FileNotFoundError(f"PLY file not found: {filepath}")
+    file_type = filepath.suffix.lower()
+
+    before_objects = set(bpy.data.objects)
+
+    if file_type == ".ply":
+        if bpy.app.version >= (4, 0, 0):
+            bpy.ops.wm.ply_import(filepath=str(filepath), global_scale=global_scale)
+        else:
+            bpy.ops.import_mesh.ply(filepath=str(filepath), global_scale=global_scale)
+    elif file_type == ".obj":
+        if bpy.app.version >= (4, 0, 0):
+            bpy.ops.wm.obj_import(filepath=str(filepath), global_scale=global_scale)
+        else:
+            bpy.ops.import_mesh.obj(filepath=str(filepath), global_scale=global_scale)
+
+    after_objects = set(bpy.data.objects)
+    new_objects = list(after_objects - before_objects)
+
+    if object_name is not None and new_objects is not None:
+        # Set both object name and its mesh data name
+        new_objects[0].name = object_name
+        if hasattr(new_objects[0].data, "name"):
+            new_objects[0].data.name = f"{object_name}_Mesh"
+        # new_objects[0].rotation_mode = 'QUATERNION'
+        new_objects[0].rotation_euler = Euler((0.0, 0.0, 0.0)) # Quaternion((1.0, 0.0, 0.0, 0.0))  # (w, x, y, z)
+
+
+    return new_objects
 
 # Function to assign materials to a target object
 def assign_materials(target_obj, materials, copy_materials=True):

@@ -65,6 +65,11 @@ def mat_to_rvec_tvec(TMat):
     tvec = TMat[:3, 3].reshape([1, 3])
     return rvec, tvec
 
+def loadMeshFileAndWriteAsPLY(filepath: Path, out_path: Path=None, ascii_file=True):
+    readMesh = loadMeshFile(filePath=filepath)
+    if out_path is None:
+        out_path = filepath.parent / f"{filepath.name.split('.vt')[0]}.ply"
+    return writePLY(readMesh, out_path, asciiFile=ascii_file)
 
 def loadMeshFile(filePath):
     # Load the VTK mesh file
@@ -79,6 +84,18 @@ def loadMeshFileGrid(filePath):
     meshReader.SetFileName(filePath)
     meshReader.Update()
     return meshReader.GetOutput()
+
+def writePLY(pd: vtk.vtkPolyData, outPath: str | Path, asciiFile=False):
+    w = vtk.vtkPLYWriter()
+    w.SetFileName(str(outPath))
+    w.SetInputData(pd)
+    if asciiFile:
+        w.SetFileTypeToASCII()
+    else:
+        w.SetFileTypeToBinary()
+    # Optional: if you have uchar RGB in point data named "RGB" or "Colors", PLYWriter will include it.
+    w.Write()
+    return outPath
 
 def VTKObjToNPPoints(VTKObj):
     print(VTKObj.GetNumberOfPoints())
