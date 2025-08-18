@@ -54,23 +54,26 @@ print(bed_pc_filenames)
 # Specimen EinScan Scan Mesh
 scan_blender_name = "scan_model"
 # scan_model_suffix = ".obj"
-tto.import_model(EINSCAN_DATA_PATH, scan_blender_name, global_scale=0.001)
+if RUN_MODE == "FULL":
+    tto.import_model(EINSCAN_DATA_PATH, scan_blender_name, global_scale=0.001)
 
 # Specimen Bel Mesh
 bel_blender_name = "bel"
 bel_model_suffix = "_bel.vtk"
 bel_model_filenames = get_matching_filenames(DEFORM_DATA_BASE_PATH, suffix=bel_model_suffix)
-bel_path = DEFORM_DATA_BASE_PATH / bel_model_filenames[0]
-bel_ply_path = ma.loadMeshFileAndWriteAsPLY(bel_path, out_path=None, ascii_file=True)
-tto.import_model(bel_ply_path, bel_blender_name, global_scale=1.0)
+if RUN_MODE == "FULL":
+    bel_path = DEFORM_DATA_BASE_PATH / bel_model_filenames[0]
+    bel_ply_path = ma.loadMeshFileAndWriteAsPLY(bel_path, out_path=None, ascii_file=True)
+    tto.import_model(bel_ply_path, bel_blender_name, global_scale=1.0)
 
 # Undeformed Specimen Bel Mesh
 deformed_bel_blender_name = "bel_deformed"
 deformed_bel_model_suffix = "_bel_deformed_initial.vtk"
 deformed_bel_model_filenames = get_matching_filenames(DEFORM_DATA_BASE_PATH, suffix=deformed_bel_model_suffix)
-deformed_bel_path = DEFORM_DATA_BASE_PATH / deformed_bel_model_filenames[0]
-deformed_bel_ply_path = ma.loadMeshFileAndWriteAsPLY(deformed_bel_path, out_path=None, ascii_file=True)
-tto.import_model(deformed_bel_ply_path, deformed_bel_blender_name, global_scale=1.0)
+if RUN_MODE == "FULL":
+    deformed_bel_path = DEFORM_DATA_BASE_PATH / deformed_bel_model_filenames[0]
+    deformed_bel_ply_path = ma.loadMeshFileAndWriteAsPLY(deformed_bel_path, out_path=None, ascii_file=True)
+    tto.import_model(deformed_bel_ply_path, deformed_bel_blender_name, global_scale=1.0)
 
 ######----------------- Fidicuals Paths -----------------######
 # Surface Related
