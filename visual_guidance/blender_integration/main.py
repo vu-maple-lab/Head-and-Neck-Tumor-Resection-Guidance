@@ -33,11 +33,11 @@ def get_matching_filenames(base_path:Path, prefix=None, suffix=None):
     return matching_names
 
 ##### OPERATION MODE #####
-RUN_MODE = "SURFACE_ONLY" # FULL
+RUN_MODE = "FULL" # FULL
 
 #####----------------- Variables and CONFIGS -----------------#####
-DEFORM_DATA_BASE_PATH = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\for_fj")
-EINSCAN_DATA_PATH = Path(r"d:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\3d_scans\2025-02-06_tongue.obj")
+DEFORM_DATA_BASE_PATH = Path(r"\\LAPTOP-EULPQQ66\Users\qingyun\Desktop\EXP\20250818\Pt_0000037\for_FJ")
+EINSCAN_DATA_PATH = Path(r"\\LAPTOP-EULPQQ66\Users\qingyun\Desktop\EXP\20250818\Pt_0000037\Scan.obj")
 EINSCAN_DATA_BASE_PATH = EINSCAN_DATA_PATH.parent
 
 ######----------------- Mesh Models and PC Paths -----------------######
@@ -77,7 +77,7 @@ if RUN_MODE == "FULL":
 
 ######----------------- Fidicuals Paths -----------------######
 # Surface Related
-bed_fids_suffix = "_fids.vtk"
+bed_fids_suffix = "_arUco.vtk"
 bed_fids_prefix = "frame"
 # bed_fids_path = Path(r"D:\Projects\Head_Neck_Marker_Alignment\data\EXP\20250206_run\run2\0024_cav\frame0010_fids.vtk")
 bed_fids_filenames = get_matching_filenames(DEFORM_DATA_BASE_PATH, prefix=bed_fids_prefix, suffix=bed_fids_suffix)
