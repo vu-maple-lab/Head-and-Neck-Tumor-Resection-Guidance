@@ -133,7 +133,7 @@ def merge_point_clouds(polydata1, polydata2, index=None):
 
 def main():
     # Change Dir ############################################################
-    base_dir = r"C:\Users\qingyun\Desktop\preprocess\data\Pt_0000039\0039"
+    base_dir = r"C:\Users\qingyun\Desktop\preprocess\data\Pt_000005\0005"
     id = base_dir[-4:]
     input_mesh_path = os.path.join(base_dir, "mesh.vtk")
     input_fids_path = os.path.join(base_dir, "fids.vtk")

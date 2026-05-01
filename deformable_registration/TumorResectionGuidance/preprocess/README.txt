@@ -1,0 +1,17 @@
+Create Pt_00000X under /data
+Preoperative PREP
+Inside the /Pt_00000X folder, create /00XX
+Prepare from ply:
+
+
+mesh.vtk
+fids.vtk
+tgt.vtk
+
+Record the index of tgt
+Results are generated in the PreOperative subfolder within the same folder
+
+Intraoperative PREP
+Inside the /Pt_00000X folder, prepare cav.svo
+Run mesh_preprocess.py
+Process cav.svo
