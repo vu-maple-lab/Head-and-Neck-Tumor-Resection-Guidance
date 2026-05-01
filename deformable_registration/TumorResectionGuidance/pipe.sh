@@ -11,7 +11,7 @@ generateMeshFromVTK() {
   cd ${folder}
   mesh_resolution=0.0008 # liver/breast
   #max_refinement is # of times it does refinement around boundary
-  max_refinement=0 # N.B. source code in VTKMyTesting was modified from standard lab issue to set this for external control
+  max_refinement=1 # N.B. source code in VTKMyTesting was modified from standard lab issue to set this for external control
   
   LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${SPMESH_LIB_DIR}
   export LD_LIBRARY_PATH
@@ -28,7 +28,7 @@ paintSpecimen() {
   echo 'Painting Polydata...'
   cd "${BASE_DIR}/PreOperative/" 
   
-  "${PYTHON_EXECUTABLE}" "${VTKUTILS_PAINT_DIR}PaintPolydataBreast.py" "${caseid}_bel.vtk" "${caseid}_ChestWallNodeIds.out" "${caseid}_SkinNodeIds.out" "${caseid}_SternumNodeIds.out" "${caseid}_ControlSurfaceNodeIds.out" "${caseid}_ModelBoundaries.vtk" 
+  "${PYTHON_EXECUTABLE}" "C:/Users/qingyun/Desktop/TumorResectionGuidance/PaintPolydata/PaintPolydataBreast.py" "${caseid}_bel.vtk" "${caseid}_ChestWallNodeIds.out" "${caseid}_SkinNodeIds.out" "${caseid}_SternumNodeIds.out" "${caseid}_ControlSurfaceNodeIds.out" "${caseid}_ModelBoundaries.vtk" 
   #"${PYTHON_EXECUTABLE}" "${VTKUTILS_PAINT_DIR}PaintPolydataBreast.py" "${caseid}_bel.vtk" "${caseid}_Panel3.out" "${caseid}_Panel4.out" "${caseid}_junk0.out" "${caseid}_junk1.out" "${caseid}_junk2.vtk" 
 
 }
@@ -36,11 +36,36 @@ paintSpecimen() {
 calcKModes(){
   matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "writeModes_LIBR_Uniform('${BASE_DIR}','${caseid}','', '${nCP}','${UnpinnedNeighbors}'); exit";
   matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "writeKModesKelvinlets('${BASE_DIR}','${caseid}', '0'); exit";
-  matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "tumorProcessing('${BASE_DIR}','${caseid}'); exit";
+  # matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "tumorProcessing('${BASE_DIR}','${caseid}'); exit";
+
+  # matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); writeModes_LIBR_Uniform('${BASE_DIR}','${caseid}','', '${nCP}','${UnpinnedNeighbors}'); exit";
+  # matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); writeKModesKelvinlets('${BASE_DIR}','${caseid}', '0'); exit";
+  # matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); tumorProcessing('${BASE_DIR}','${caseid}'); exit";
 }
 
+
 posteriorAlphaShape(){
-  matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "posteriorAlphaShape('${BASE_DIR}','${caseid}'); exit";
+  # matlab -nodisplay -nojvm -sd "${MATLAB_BREAST_DIR}" -r "posteriorAlphaShape('${BASE_DIR}','${caseid}'); exit";
+  matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); posteriorAlphaShape('${BASE_DIR}','${caseid}'); exit";
+}
+
+autoContourExtract() {
+  echo 'Painting Polydata...'
+  cd "${BASE_DIR}/PreOperative/"
+  "${PYTHON_EXECUTABLE}" "C:/Users/qingyun/Desktop/TumorResectionGuidance/auto_polyline/main.py" "${caseid}_alphashape.vtk" "${caseid}_boundary.vtk"
+
+  cd "${BASE_DIR}/IntraOperative/"
+  "${PYTHON_EXECUTABLE}" "C:/Users/qingyun/Desktop/TumorResectionGuidance/auto_polyline/main.py" "1${caseid:1:3}_sparsedata.vtk" "1${caseid:1:3}_boundary.vtk"
+}
+
+rigidRegistration(){
+  if [ "$ifICP" = "0" ]; then
+    echo 'Running fids registration...'
+    matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); tumorProcessingWTargetWBoundary('${BASE_DIR}','${caseid}'); exit";
+  else
+    echo 'Running ICP...'
+    matlab -nodisplay -nojvm -r "addpath('/home/yangqi/TumorResectionGuidance/MATLAB'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/MeshUtils'); addpath('/home/yangqi/TumorResectionGuidance/MATLAB/IO'); weighted_icp_fid_registerWTargetWBoundary('${BASE_DIR}','${caseid}'); exit";
+  fi
 }
 
 nonrigidRegisterTumorCavity() {
@@ -60,9 +85,11 @@ nonrigidRegisterTumorCavity() {
 
   fid_preop=${BASE_DIR}/PreOperative/${caseid}_fids.vtk #in m
   surf_preop=${BASE_DIR}/PreOperative/${caseid}_alphashape.vtk # in m #
+  boundary_preop=${BASE_DIR}/PreOperative/${caseid}_boundary_mm.vtk # in mm #
 
   fid_intraop=${BASE_DIR}/IntraOperative/1${caseid:1:3}_fids_transformed.vtk #MM
-  fid_preop=${BASE_DIR}/PreOperative/1${caseid:1:3}_sparsedata_transformed.vtk  #skin_intraop=${BASE_DIR}/IntraOperative/1${caseid:1:3}skin_patch_mm_transformed.vtk #MM
+  surf_intraop=${BASE_DIR}/IntraOperative/1${caseid:1:3}_sparsedata_transformed.vtk  #skin_intraop=${BASE_DIR}/IntraOperative/1${caseid:1:3}skin_patch_mm_transformed.vtk #MM
+  boundary_intraop=${BASE_DIR}/IntraOperative/1${caseid:1:3}_boundary_transformed_mm.vtk # in mm #
 
   fid_i=1
   surf_i=1
@@ -81,6 +108,11 @@ nonrigidRegisterTumorCavity() {
   do
     contents+="CORRESPONDENCE: 1 ${surf_w} 1 1  ${surf_intraop} ${surf_preop}\n"
   done
+
+  #contents+="CORRESPONDENCE: 3 5.0 0.001 0.001 ${boundary_intraop} ${boundary_preop}\n"
+  if [ -f "${boundary_preop}" ] && [ -f "${boundary_intraop}" ]; then
+    contents+="CORRESPONDENCE: 3 5.0 0.001 0.001 ${boundary_intraop} ${boundary_preop}\n"
+  fi
 
   LIBR_CFG="${BASE_DIR}/IntraOperative/LIBR.cfg"  
   echo -e ${contents[@]} > ${LIBR_CFG}
@@ -103,7 +135,14 @@ deformTargetsTumorCavity(){
 
   disp_file="${caseid}_displacement"
   ${NONRIGID_APPS_DIR}LIBR_DeformIntraOpTarget "${BASE_DIR}/" "${caseid}${year}" 4 "${disp_file}" "PreOperative/${caseid}_fids_mm"
-  ${NONRIGID_APPS_DIR}LIBR_DeformIntraOpTarget "${BASE_DIR}/" "${caseid}${year}" 4 "${disp_file}" "PreOperative/${caseid}_tgt_mm"
+  #${NONRIGID_APPS_DIR}LIBR_DeformIntraOpTarget "${BASE_DIR}/" "${caseid}${year}" 4 "${disp_file}" "PreOperative/${caseid}_tgt_mm"
+
+  tgt_file="${BASE_DIR}/PreOperative/${caseid}_tgt_mm"
+  if [ -f "$tgt_file" ]; then
+    ${NONRIGID_APPS_DIR}LIBR_DeformIntraOpTarget "${BASE_DIR}/" "${caseid}${year}" 4 "${disp_file}" "PreOperative/${caseid}_tgt_mm"
+  else
+    echo "Warning: $tgt_file not found. Skipping deformation for tgt."
+  fi
 
   echo 'Targets deformed'
 
